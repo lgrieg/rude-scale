@@ -55,11 +55,17 @@
     }
 
     function addRudePerson() {
-      const name = document.getElementById('nameInput').value.trim();
-      if (!name) return alert("Введите имя");
-      db.ref('rudePeople/' + name).set(0);
-      document.getElementById('nameInput').value = '';
-    }
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return alert("Введите имя");
+
+  console.log("Добавляю грубияна:", name); // ← отладка
+  db.ref('rudePeople/' + name).set(0)
+    .then(() => console.log("Грубиян добавлен!"))
+    .catch(err => console.error("Ошибка:", err));
+
+  document.getElementById('nameInput').value = '';
+}
+
 
     function increase(name, current) {
       db.ref('rudePeople/' + name).set(current + 1);
