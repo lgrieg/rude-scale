@@ -35,19 +35,28 @@
     const db = firebase.database();
 
     function renderList(data) {
-      const container = document.getElementById("rudeList");
-      container.innerHTML = "";
-      for (const name in data) {
-        const count = data[name];
-        const div = document.createElement("div");
-        div.className = "entry";
-        div.innerHTML = `
-          <strong>${name}</strong>: ${count}
-          <button onclick="increase('${name}', ${count})">+1</button>
-        `;
-        container.appendChild(div);
-      }
-    }
+  const container = document.getElementById("rudeList");
+  container.innerHTML = "";
+
+  // Преобразуем объект в массив и сортируем по убыванию
+  const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
+
+  sorted.forEach(([name, count], index) => {
+    let medal = "";
+    if (index === 0) medal = " 🥇";
+    else if (index === 1) medal = " 🥈";
+    else if (index === 2) medal = " 🥉";
+
+    const div = document.createElement("div");
+    div.className = "entry";
+    div.innerHTML = `
+      <strong>${name}${medal}</strong>: ${count}
+      <button onclick="increase('${name}', ${count})">+1</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
 
     function addRudePerson() {
       const name = document.getElementById("nameInput").value.trim();
