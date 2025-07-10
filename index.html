@@ -1,50 +1,46 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Шкала грубиянства (Firebase)</title>
+  <meta charset="UTF-8" />
+  <title>Шкала грубиянства</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
     .entry { margin-bottom: 10px; }
   </style>
 </head>
 <body>
-<h1>🧂 Шкала грубиянства ДА</h1>
-  <input type="text" id="nameInput" placeholder="Имя грубияна">
+  <h1>🧂 Шкала грубиянства</h1>
+  <input type="text" id="nameInput" placeholder="Имя грубияна" />
   <button onclick="addRudePerson()">Добавить грубияна</button>
-  <hr>
+  <hr />
   <div id="rudeList"></div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (compat версии!) -->
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
 
-
   <script>
-  const firebaseConfig = {
-  apiKey: "AIzaSyCOxEiESJZ6NiXEtYgaee7Uyzr2TN95M-0",
-  authDomain: "rudelist-77a84.firebaseapp.com",
-  databaseURL: "https://rudelist-77a84-default-rtdb.europe-west1.firebasedatabase.app/",
-  projectId: "rudelist-77a84",
-  storageBucket: "rudelist-77a84.appspot.com",
-  messagingSenderId: "668098940323",
-  appId: "1:668098940323:web:af4b90c4b480ac02765e16"
-};
-
-    
+    const firebaseConfig = {
+      apiKey: "AIzaSyCOxEiESJZ6NiXEtYgaee7Uyzr2TN95M-0",
+      authDomain: "rudelist-77a84.firebaseapp.com",
+      databaseURL: "https://rudelist-77a84-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "rudelist-77a84",
+      storageBucket: "rudelist-77a84.appspot.com",
+      messagingSenderId: "668098940323",
+      appId: "1:668098940323:web:af4b90c4b480ac02765e16"
+    };
 
     // Инициализация Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     function renderList(data) {
-      const container = document.getElementById('rudeList');
-      container.innerHTML = '';
-
+      const container = document.getElementById("rudeList");
+      container.innerHTML = "";
       for (const name in data) {
         const count = data[name];
-        const div = document.createElement('div');
-        div.className = 'entry';
+        const div = document.createElement("div");
+        div.className = "entry";
         div.innerHTML = `
           <strong>${name}</strong>: ${count}
           <button onclick="increase('${name}', ${count})">+1</button>
@@ -54,24 +50,23 @@
     }
 
     function addRudePerson() {
-  const name = document.getElementById('nameInput').value.trim();
-  if (!name) return alert("Введите имя");
+      const name = document.getElementById("nameInput").value.trim();
+      if (!name) return alert("Введите имя");
 
-  console.log("Добавляю грубияна:", name); // ← отладка
-  db.ref('rudePeople/' + name).set(0)
-    .then(() => console.log("Грубиян добавлен!"))
-    .catch(err => console.error("Ошибка:", err));
+      console.log("Добавляю грубияна:", name);
+      db.ref("rudePeople/" + name)
+        .set(0)
+        .then(() => console.log("Грубиян добавлен"))
+        .catch((err) => console.error("Ошибка:", err));
 
-  document.getElementById('nameInput').value = '';
-}
-
-
-    function increase(name, current) {
-      db.ref('rudePeople/' + name).set(current + 1);
+      document.getElementById("nameInput").value = "";
     }
 
-    // Слушаем изменения
-    db.ref('rudePeople').on('value', (snapshot) => {
+    function increase(name, current) {
+      db.ref("rudePeople/" + name).set(current + 1);
+    }
+
+    db.ref("rudePeople").on("value", (snapshot) => {
       const data = snapshot.val() || {};
       renderList(data);
     });
