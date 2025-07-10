@@ -15,7 +15,7 @@
   <hr />
   <div id="rudeList"></div>
 
-  <!-- Firebase SDK (compat версии!) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
 
@@ -30,49 +30,72 @@
       appId: "1:668098940323:web:af4b90c4b480ac02765e16"
     };
 
-    // Инициализация Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     function renderList(data) {
-  const container = document.getElementById("rudeList");
-  container.innerHTML = "";
+    const container = document.getElementById("rudeList");
+    container.innerHTML = "";
 
-  // Преобразуем объект в массив и сортируем по убыванию
-  const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
+    const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
 
-  sorted.forEach(([name, count], index) => {
-    let medal = "";
-    if (index === 0) medal = " 🥇";
-    else if (index === 1) medal = " 🥈";
-    else if (index === 2) medal = " 🥉";
+    sorted.forEach(([name, count], index) => {
+        // ❗ Автоматическое удаление, если меньше 0
+        if (count < 0) {
+        db.ref("rudePeople/" + name).remove();
+        return; // пропустить отрисовку
+        }
 
-    const div = document.createElement("div");
-    div.className = "entry";
-    div.innerHTML = `
-      <strong>${medal}${name}</strong>: ${count}
-      <button onclick="increase('${name}', ${count})">+1</button>
-    `;
-    container.appendChild(div);
-  });
-}
+        let medal = "";
+        if (index === 0) medal = " 🥇";
+        else if (index === 1) medal = " 🥈";
+        else if (index === 2) medal = " 🥉";
+
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `
+        <strong>${medal}${name}</strong>: ${count}
+        <button onclick="increase('${name}', ${count})">+1</button>
+        <button onclick="confirmDelete('${name}', ${count})">УБЕРИТЕ!!!!</button>
+        `;
+        container.appendChild(div);
+    });
+    }
 
 
     function addRudePerson() {
       const name = document.getElementById("nameInput").value.trim();
       if (!name) return alert("Введите имя");
-
-      console.log("Добавляю грубияна:", name);
       db.ref("rudePeople/" + name)
         .set(0)
         .then(() => console.log("Грубиян добавлен"))
         .catch((err) => console.error("Ошибка:", err));
-
       document.getElementById("nameInput").value = "";
     }
 
     function increase(name, current) {
       db.ref("rudePeople/" + name).set(current + 1);
+    }
+
+    function confirmDelete(name, current) {
+      const answer = prompt(`У тебя есть шанс исправиться. Ответь на вопрос "${name}"!\nМожно ли грубиянничать?\n\nВарианты:\n— да\n— нет\n— иди нахуй`);
+
+      if (!answer) return;
+
+      const norm = answer.trim().toLowerCase();
+
+      if (norm === "да") {
+        db.ref("rudePeople/" + name).set(current + 5);
+        alert(`${name} неправильно (+5 к грубиянству)!`);
+      } else if (norm === "нет") {
+        db.ref("rudePeople/" + name).set(current - 5);
+        alert(`${name} стал ещё приличнее (-5 к грубиянству)!`);
+      } else if (norm === "иди нахуй") {
+        db.ref("rudePeople/" + name).set(current + 100);
+        alert(`${name} получил +100 за хамство 😈`);
+      } else {
+        alert("Ответ не распознан.");
+      }
     }
 
     db.ref("rudePeople").on("value", (snapshot) => {
