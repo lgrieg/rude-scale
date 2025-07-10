@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Шкала грубиянства (Firebase)</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .entry { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🧂 Шкала грубиянства</h1>
+
+  <input type="text" id="nameInput" placeholder="Имя грубияна">
+  <button onclick="addRudePerson()">Добавить грубияна</button>
+  <hr>
+  <div id="rudeList"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+  apiKey: "AIzaSyCOxEiESJZ6NiXEtYgaee7Uyzr2TN95M-0",const firebaseConfig = {
+  apiKey: "AIzaSyCOxEiESJZ6NiXEtYgaee7Uyzr2TN95M-0",
+  authDomain: "rudelist-77a84.firebaseapp.com",
+  projectId: "rudelist-77a84",
+  storageBucket: "rudelist-77a84.firebasestorage.app",
+  messagingSenderId: "668098940323",
+  appId: "1:668098940323:web:af4b90c4b480ac02765e16",
+  measurementId: "G-07BRXCFKGV"
+};
+  authDomain: "rudelist-77a84.firebaseapp.com",
+  projectId: "rudelist-77a84",
+  storageBucket: "rudelist-77a84.firebasestorage.app",
+  messagingSenderId: "668098940323",
+  appId: "1:668098940323:web:af4b90c4b480ac02765e16",
+  measurementId: "G-07BRXCFKGV"
+};
+    
+
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function renderList(data) {
+      const container = document.getElementById('rudeList');
+      container.innerHTML = '';
+
+      for (const name in data) {
+        const count = data[name];
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `
+          <strong>${name}</strong>: ${count}
+          <button onclick="increase('${name}', ${count})">+1</button>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function addRudePerson() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (!name) return alert("Введите имя");
+      db.ref('rudePeople/' + name).set(0);
+      document.getElementById('nameInput').value = '';
+    }
+
+    function increase(name, current) {
+      db.ref('rudePeople/' + name).set(current + 1);
+    }
+
+    // Слушаем изменения
+    db.ref('rudePeople').on('value', (snapshot) => {
+      const data = snapshot.val() || {};
+      renderList(data);
+    });
+  </script>
+</body>
+</html>
