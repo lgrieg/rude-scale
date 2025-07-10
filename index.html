@@ -50,7 +50,7 @@
     const div = document.createElement("div");
     div.className = "entry";
     div.innerHTML = `
-      <strong>${name}${medal}</strong>: ${count}
+      <strong>${medal}${name}</strong>: ${count}
       <button onclick="increase('${name}', ${count})">+1</button>
     `;
     container.appendChild(div);
